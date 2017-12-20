@@ -11,4 +11,85 @@
 ---- Stance management
 ---- AoE ~~
 ---- Berserker Rage usage (fear / damage takens)
-  ]]
+]]
+if timeStored == nil then
+  local timeStored = GetTime()+0.2
+end
+
+function _castSpell(spellid,tar,castIt,humaniz,gcd)
+  if UnitCastingInfo("player") == nil and UnitChannelInfo("player") == nil
+  --and IsPlayerSpell(spellid) == true
+  and cdRemains(spellid) == 0 then
+    if tar ~= nil and rangeCheck(spellid,tar) == nil then
+      return false
+    elseif tar ~= nil and rangeCheck(spellid,tar) == true then
+      if castIt == true and
+      (timeStored+0.1+math.math.random(0.05,0.1))<GetTime() then
+        CastSpellByID(spellid, tar)
+        if gcd == true then
+          timeStored = GetTime()
+        else
+          timeStored = GetTime
+        end
+      end
+      return true
+    elseif tar == nil then
+      if castIt == true and
+      (timeStored+0.1+math.math.random(0.05,0.1))<GetTime() then
+        CastSpellByID(spellid)
+        timeStored = GetTime()
+      end
+      return true
+    else
+      return false
+    end
+  end
+end
+
+--Combat Check--
+function inCombat()
+  if UnitAffectingCombat("player") ~= nil
+  then
+    return true
+  end
+end
+
+--Get HP simple--
+function getHp(unit)
+  if UnitExists(unit) ~= nil
+  then
+    return 100 * UnitHealth(unit) / UnitHealthMax(unit)
+  end
+end
+
+--Range Check Simple--
+function rangeCheck(spellid,unit)
+  if IsSpellInRange(GetSpellInfo(spellid),unit) == 1
+  then
+    return true
+  end
+end
+
+--Amount of Cooldown that remains--
+function cdRemains(spellid)
+  if select(2,GetSpellCooldown(spellid)) + (select(1,GetSpellCooldown(spellid))
+  - GetTime()) > 0 then
+    return select(2,GetSpellCooldown(spellid)) +
+    (select(1,GetSpellCooldown(spellid)) - GetTime())
+  else
+    return 0
+  end
+end
+
+function inMelee()
+  if UnitAffectingCombat("player") ~= nil
+  and IsSpellInRange(GetSpellInfo(47450),"target") == 1
+  and UnitExists("target") ~= nil
+  and UnitCanAttack("player","target") ~= nil
+  then return true
+  end
+end
+
+function globalCD
+  
+end
