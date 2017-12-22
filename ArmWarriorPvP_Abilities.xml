@@ -12,38 +12,45 @@
 ---- AoE ~~
 ---- Berserker Rage usage (fear / damage takens)
 ]]
-if timeStored == nil then
-  local timeStored = GetTime()+0.2
+
+if inCombat() then
+  -- bloodrage
+  if canCast("player",2687) and rage() <= 65 and getHp("player") >= 65 then
+    CastSpellById(2687)
+    -- heroic strike rage >=50
+  elseif canCast("target",47450) and rage() >= 50 then
+    CastSpellById(47450)
+    -- rend
+  elseif canCast("target",47465) and not UnitDebuffID("target",47465) then
+    CastSpellById(47465)
+    -- exec on proc
+  elseif canCast()
+
+
+else
+
+
 end
 
-function _castSpell(spellid,tar,castIt,humaniz,gcd)
+function canCast(tar,spellid)
   if UnitCastingInfo("player") == nil and UnitChannelInfo("player") == nil
   --and IsPlayerSpell(spellid) == true
   and cdRemains(spellid) == 0 then
     if tar ~= nil and rangeCheck(spellid,tar) == nil then
       return false
     elseif tar ~= nil and rangeCheck(spellid,tar) == true then
-      if castIt == true and
-      (timeStored+0.1+math.math.random(0.05,0.1))<GetTime() then
-        CastSpellByID(spellid, tar)
-        if gcd == true then
-          timeStored = GetTime()
-        else
-          timeStored = GetTime
-        end
-      end
       return true
     elseif tar == nil then
-      if castIt == true and
-      (timeStored+0.1+math.math.random(0.05,0.1))<GetTime() then
-        CastSpellByID(spellid)
-        timeStored = GetTime()
-      end
       return true
     else
       return false
     end
   end
+end
+
+-- rage amount
+function rage()
+  return UnitPower("player")
 end
 
 --Combat Check--
@@ -88,8 +95,4 @@ function inMelee()
   and UnitCanAttack("player","target") ~= nil
   then return true
   end
-end
-
-function globalCD
-  
 end
