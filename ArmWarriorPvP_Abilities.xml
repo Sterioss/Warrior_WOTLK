@@ -11,11 +11,26 @@
 ---- Stance management
 ---- AoE ~~
 ---- Berserker Rage usage (fear / damage takens)
+if ( talents.armored_to_the_teeth )
+  action_list_str += "/indestructible_potion";
+action_list_str += "/bloodrage,rage<=65";
+action_list_str += "/heroic_strike,rage>=50";
+action_list_str += "/rend";
+action_list_str += "/overpower,if=buff.taste_for_blood.remains<1.5";
+action_list_str += "/bladestorm";
+action_list_str += "/mortal_strike";
+action_list_str += "/overpower,if=buff.taste_for_blood.react";
+action_list_str += "/execute,health_percentage>=20,if=buff.sudden_death.react";
+action_list_str += "/execute,health_percentage<=20";
+action_list_str += "/slam";
+}
 ]]
 
 if inCombat() then
-  -- bloodrage
-  if canCast("player",2687) and rage() <= 65 and getHp("player") >= 65 then
+  if canCast("target",1715) and not isSlowed("target") and UnitIsPVP("target") then
+    CastSpellById(1715)
+    -- bloodrage
+  elseif canCast("player",2687) and rage() <= 65 and getHp("player") >= 65 then
     CastSpellById(2687)
     -- heroic strike rage >=50
   elseif canCast("target",47450) and rage() >= 50 then
@@ -44,6 +59,32 @@ function canCast(tar,spellid)
       return true
     else
       return false
+    end
+  end
+end
+
+--Function Check Snares--
+local PvPslows 			= {
+  45524,			-- Chains of Ice
+  50435,			-- Chilblains
+  50259,			-- Dazed
+  58180,			-- Infected Wounds
+  5116,			-- Concussive Shot
+  120,				-- Cone of Cold
+  116,				-- Frostbolt
+  44614,			-- Frostfire Bolt
+  3409,			-- Crippling Poison
+  8056,			-- Frost Shock
+  51490,		-- Thunderstorm
+  1715,			-- Hamstring
+  1604,			-- Dazed
+  12323,    -- Piercing Howl
+}
+function isSlowed(unit)
+  for i=1,#PvPslows do
+    if UnitDebuffID(unit,PvPslows[i]) ~= nil
+    then
+      return true
     end
   end
 end
